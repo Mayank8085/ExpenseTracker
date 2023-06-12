@@ -1,0 +1,19 @@
+{
+  "name": "expensetrackerbackend",
+  "version": "1.0.0",
+  "description": "expense tracker backend",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "expense_tracker_backend"
+  },
+  "author": "Mayank",
+  "license": "ISC",
+  "dependencies": {
+    "nodemon": "^2.0.22"
+  }
+}
