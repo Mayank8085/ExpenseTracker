@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, TextInput, Button, Text, StyleSheet, Dimensions } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { Picker } from '@react-native-picker/picker';
 import { useAuth } from '../App';
 
 const AddExpenseComponent = ({ onAddExpense }) => {
@@ -80,52 +81,79 @@ const AddExpenseComponent = ({ onAddExpense }) => {
 
       </View>
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Amount:</Text>
+        <Text style={styles.label}>Amount :</Text>
         <TextInput
           style={styles.input}
           placeholder="Amount"
+          placeholderTextColor={ '#E6E7EE'}
           value={amount}
           onChangeText={setAmount}
         />
       </View>
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Type:</Text>
-        <TextInput
+        <Text style={styles.label}>Type :</Text>
+        <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={type}
+          style={[styles.picker, {color: '#fff'}]}
+          mode='dropdown'
+          
+          onValueChange={(itemValue, itemIndex) => setType(itemValue)}
+          placeholder="Type"
+          placeholderTextColor={ '#E6E7EE'}
+          
+        >
+          <Picker.Item label="Select Type" value="" />
+          <Picker.Item label="Food" value="Food" />
+          <Picker.Item label="Travel" value="Travel" />
+          <Picker.Item label="Shopping" value="Shopping" />
+          <Picker.Item label="Others" value="Others" />
+        </Picker>
+
+        {/* <TextInput
           style={styles.input}
           placeholder="Type"
+          placeholderTextColor={ '#E6E7EE'}
           value={type}
           onChangeText={setType}
-        />
+        /> */}
+      </View>
       </View>
       
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Payment Mode:</Text>
+        <Text style={styles.label}>Payment Mode :</Text>
         <TextInput
           style={styles.input}
           placeholder="Payment Mode"
           value={paymentMode}
           onChangeText={setPaymentMode}
+          placeholderTextColor={ '#E6E7EE'}
         />
       </View>
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Time:</Text>
+      <View style={[styles.inputContainer]}>
+        <Text style={styles.label}>Time :</Text>
         <TextInput
           style={styles.input}
           placeholder="Time"
           value={time}
           onChangeText={setTime}
+          placeholderTextColor={ '#E6E7EE'}
         />
       </View>
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Description:</Text>
+      <View style={[styles.inputContainer, {
+          alignItems: 'flex-start',
+      }]}>
+        <Text style={[styles.label]}>Note :</Text>
         {/* multiline={true} */}
         <TextInput
-          style={[styles.input,{height: 100,}]}
+          style={[styles.muultiline]}
           placeholder="Description"
+          placeholderTextColor={ '#E6E7EE'}
+          
           value={description}
           onChangeText={setDescription}
           multiline={true}
-          numberOfLines={4}
+         
         />
       </View>
       <Button title="Add Expense" onPress={handleAddExpense} />
@@ -165,6 +193,32 @@ const styles = StyleSheet.create({
     color: '#fff',
     borderRadius: 5, 
    },
+   muultiline: {
+    flex: 1,
+    height: 100,
+    textAlignVertical: 'top',
+    borderColor: 'gray',
+    borderWidth: 2,
+    paddingHorizontal: 10,
+    fontSize:  16,
+    color: '#fff',
+    borderRadius: 5,
+    },
+    pickerContainer: {
+      flex: 1,
+      height: 40,
+      borderColor: 'gray',
+      borderWidth: 1,
+      borderRadius: 4,
+      overflow: 'hidden',
+    
+    },
+    picker: {
+      flex: 1,
+      textAlign: 'center',
+      verticalAlign: 'middle',
+    
+    },
 });
 
 export default AddExpenseComponent;

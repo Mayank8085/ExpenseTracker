@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, StyleSheet, Text, ScrollView} from 'react-native';
+import {View, StyleSheet, Text, ScrollView, Dimensions} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import {useAuth} from '../App';
@@ -8,9 +8,11 @@ import Charts from './Charts';
 
 const Home = ({navigation}) => {
   const {stylesApp} = useAuth();
+  const windowHeight = Dimensions.get('window').height;
 
   return (
-    <ScrollView>
+    <ScrollView style={[{height: windowHeight}, stylesApp.App]}
+    >
       <View style={[stylesApp.App, styles.containerColoumn]}>
         {/* profilename and profile pic */}
         <View style={[styles.containerRow]}>
@@ -76,6 +78,8 @@ const Home = ({navigation}) => {
         
         </View>
       </View>
+
+      
     </ScrollView>
   );
 };
@@ -85,8 +89,10 @@ const styles = StyleSheet.create({
     flex: 1,
     //justifyContent: 'center',
     //alignItems:'center',
-    flexWrap: 'wrap',
-    alignContent: 'center',
+   
+    height: '100%',
+
+    //alignContent: 'center',
   },
   containerRow: {
     flex: 1,
