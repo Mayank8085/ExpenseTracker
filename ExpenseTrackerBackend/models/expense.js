@@ -34,9 +34,10 @@ const expenseSchema = new mongoose.Schema({
     required: [true, "Payment Type is required"],
     enum: ["Cash"],
   },
-  TotalUpperLimt: {
+  TotalEarning: {
     type: Number,
     required: [true, "Total Money is required"],
+    default: 0,
   },
 }, {
     timestamps: true,

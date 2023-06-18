@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@react-native-community/datetimepicker": "^7.1.0",
+    "@react-native-google-signin/google-signin": "^10.0.1",
     "@react-native-picker/picker": "^2.4.10",
     "@react-navigation/bottom-tabs": "^6.5.7",
     "@react-navigation/native": "^6.1.6",

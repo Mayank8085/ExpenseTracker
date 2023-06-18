@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema({
             ref: 'Expense'
         }
     ], 
-    totalSaving: {
+    totalEarning: {
         type: Number,
         default: 0
     },
