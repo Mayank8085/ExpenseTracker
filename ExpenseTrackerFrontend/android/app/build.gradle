@@ -93,9 +93,9 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace "com.expensetrackerfrontend"
+    namespace "com.mayanksahu.expensetracker"
     defaultConfig {
-        applicationId "com.expensetrackerfrontend"
+        applicationId "com.mayanksahu.expensetracker"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

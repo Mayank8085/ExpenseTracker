@@ -38,6 +38,7 @@ const SignIn = async () => {
     setUser(userInfo.user);
     setIsSignedIn(true);
     console.log(userInfo);
+    console.log(userInfo.user);
   } catch (error) {
     console.log(error);
   }
@@ -46,7 +47,7 @@ const SignIn = async () => {
 
   useEffect(() => {
     GoogleSignin.configure({
-      webClientId: '193631796977-kekaduca2ss1l1gndf0ah56imq2qn86k.apps.googleusercontent.com',
+      webClientId :"193631796977-fj1f40kpklm7mhdqa6848j6ln836jhbk.apps.googleusercontent.com"
     });
     GoogleSignin.hasPlayServices();
 
