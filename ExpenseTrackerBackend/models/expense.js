@@ -39,6 +39,10 @@ const expenseSchema = new mongoose.Schema({
     required: [true, "Total Money is required"],
     default: 0,
   },
+  user : {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }
 }, {
     timestamps: true,
 });

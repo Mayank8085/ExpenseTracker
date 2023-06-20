@@ -6,6 +6,8 @@ const mongoose = require('mongoose');
 const port = process.env.PORT || 5000;
 const uri = process.env.ATLAS_URI;
 
+// import routes
+const authRoutes = require('./routes/auth');
 
 //middlewares
 app.use(cors());
@@ -20,15 +22,8 @@ connection.once('open', () => {
     console.log("MongoDB database connection established successfully");
 })
 
-
-
-
-
-//const usersRouter = require('./routes/users');
-//const expensesRouter = require('./routes/expenses');
-
-//app.use('/users', usersRouter);
-//app.use('/expenses', expensesRouter);
+//routes
+app.use('/auth', authRoutes )
 
 app.listen(port, () => {
     console.log(`Server is running on port: ${port}`);

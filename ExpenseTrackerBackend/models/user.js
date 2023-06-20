@@ -20,13 +20,7 @@ const userSchema = new mongoose.Schema({
     photo: {
         type: String,
         required: [true, 'Photo is required']
-    },
-    expenses: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Expense'
-        }
-    ], 
+    }, 
     totalEarning: {
         type: Number,
         default: 0
