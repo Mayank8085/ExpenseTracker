@@ -47,7 +47,8 @@ const SignIn = async () => {
 
   useEffect(() => {
     GoogleSignin.configure({
-      webClientId :"193631796977-fj1f40kpklm7mhdqa6848j6ln836jhbk.apps.googleusercontent.com"
+     webClientId:"666106029738-c46a0raqekbknm35j0116r94n5r3ivjn.apps.googleusercontent.com"
+
     });
     GoogleSignin.hasPlayServices();
 
