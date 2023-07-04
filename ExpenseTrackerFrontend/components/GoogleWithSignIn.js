@@ -17,7 +17,7 @@ const GoogleWithSignIn = () => {
     const signin= async () => {
         try{
           const userInfo = await SignIn();
-        console.log(userInfo);
+       // console.log(userInfo);
         if(!userInfo) return;
 
         console.log(userInfo.user.email);

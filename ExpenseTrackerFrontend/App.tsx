@@ -37,7 +37,8 @@ const App = () => {
   const [axiosInst, setAxiosInst] = React.useState({});
   //axios instance
   
-  const url = 'http://192.168.1.14:5000';
+  const url = 'https://expensetrackerr-is5m.onrender.com';
+  //'http://192.168.1.14:5000';
   let axiosInstance = axios.create({
     timeout: 30000,
     baseURL: url,
@@ -79,7 +80,7 @@ const App = () => {
     async function init() {
       try {
         GoogleSignin.configure({
-          webClientId:GOOGLE_CLIENT_ID
+          webClientId:'666106029738-mo4v9p6vau2o3hsj09p1aif9u2d15isn.apps.googleusercontent.com'
         });
         GoogleSignin.hasPlayServices();
 
