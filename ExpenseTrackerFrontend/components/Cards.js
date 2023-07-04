@@ -11,7 +11,7 @@ const Cards = ({
   return (
     <View style={[styles.container]}>
       <MaterialCommunityIcons name={
-            type === 'Balance'
+            type === 'Earnings'
                 ? 'wallet-outline'
                 : type === 'Expenses'
                 ? 'currency-inr'
@@ -40,7 +40,8 @@ const Cards = ({
             paddingTop: 10,
           },
         ]}>
-        {amount}
+        ₹ {amount}
+
       </Text>
     </View>
   );

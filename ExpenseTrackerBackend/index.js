@@ -8,11 +8,12 @@ const uri = process.env.ATLAS_URI;
 
 // import routes
 const authRoutes = require('./routes/auth');
-
+const userRoutes = require('./routes/userExpense');
+const expenseRoutes = require('./routes/expense');
 //middlewares
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+//app.use(express.urlencoded({ extended: true }));
 
 
 //database connection
@@ -24,6 +25,8 @@ connection.once('open', () => {
 
 //routes
 app.use('/auth', authRoutes )
+app.use('/user', userRoutes)
+app.use('/expense', expenseRoutes)
 
 app.listen(port, () => {
     console.log(`Server is running on port: ${port}`);

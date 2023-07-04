@@ -3,44 +3,63 @@ const jwt = require('jsonwebtoken');
 
 
 //login or signup through google 
-exports.LoginOrSignup = (req, res) => {
-    // console.log(req.body);
-    const { name, email, photo, googleId } = req.body;
+exports.LoginOrSignup = async (req, res) => {
+    //USE TRY CATCH BLOCK
+    const { name, email, googleId, photo } = req.body;
+    try{
+        //check if user exists
+        const user = await User.findOne({ email: email }).exec();
+        if(user){
+            //generate token
+            const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
+            //send response to client
+            res.json({
+                token,
+                user: {
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    photo: user.photo,
+                    googleId: user.googleId,
+                    
+                }
+            });
 
-    //check if user already exists
-    User.findOne({ email: email })
-        .exec((error, user) => {
-            if (error) return res.status(400).json({ error });
-            if (user) {
-                //if user already exists
+        }else{
+            //create new user
+            let newUser = new User({
+                name: name,
+                email: email,
+                googleId: googleId,
+                photo: photo,
+            });
+            const user = await newUser.save();
+            if(user){
                 //generate token
-                const token = jwt.sign({ user : user }, process.env.JWT_SECRET);
-                const { _id, name, email, photo, totalEarning } = user;
-                res.status(200).json({
+                const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+                //send response to client
+                res.json({
                     token,
                     user: {
-                        _id, name, email, photo, totalEarning
+                        _id: user._id,
+                        name: user.name,
+                        email: user.email,
+                        photo: user.photo,
+                        googleId: user.googleId,
+                        
                     }
                 });
+            }else{
+                res.status(400).json({
+                    error: 'Something went wrong'
+                })
             }
-            else {
-                //if user does not exist
-                //create new user
-                const newUser = new User({ name, email, photo, googleId });
-                newUser.save((error, data) => {
-                    if (error) return res.status(400).json({ error });
-                    if (data) {
-                        //generate token
-                        const token = jwt.sign({ user : data }, process.env.JWT_SECRET);
-                        const { _id, name, email, photo, totalEarning } = data;
-                        res.status(200).json({
-                            token,
-                            user: {
-                                _id, name, email, photo, totalEarning
-                            }
-                        });
-                    }
-                });
-            }
-        });
-}
+        }
+    }catch(err){
+        console.log(err);
+        res.status(400).json({
+            error: 'Something went wrong'
+        })
+    }
+};
+

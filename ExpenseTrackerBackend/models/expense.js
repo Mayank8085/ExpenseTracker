@@ -5,10 +5,7 @@ const expenseSchema = new mongoose.Schema({
     type: Date,
     required: [true, "Date is required"],
   },
-  time: {
-    type: String,
-    required: [true, "Time is required"],
-  },
+  
   amount: {
     type: Number,
     required: [true, "Amount is required"],
@@ -23,21 +20,16 @@ const expenseSchema = new mongoose.Schema({
     required: [true, "Description is required"],
   },
   month: {
-    type: String,
+    type: Number,
   },
   year: {
-    type: String,
+    type: Number,
   },
 
   paymentType: {
     type: String,
     required: [true, "Payment Type is required"],
-    enum: ["Cash"],
-  },
-  TotalEarning: {
-    type: Number,
-    required: [true, "Total Money is required"],
-    default: 0,
+    enum: ["Cash", "Card", "UPI", "Others"],
   },
   user : {
     type: mongoose.Schema.Types.ObjectId,

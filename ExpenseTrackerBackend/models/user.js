@@ -21,10 +21,22 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Photo is required']
     }, 
-    totalEarning: {
-        type: Number,
-        default: 0
-    },
+    //array of objects
+    monthByEarning: [{
+        year: {
+            type: Number,
+            //required: [true, 'Year is required']
+        },
+        month: {
+            type: Number,
+           // required: [true, 'Month is required']
+        },
+        earning: {
+            type: Number,
+            //required: [true, 'Earning is required']
+        },
+    }],
+
 }, {
     timestamps: true
     

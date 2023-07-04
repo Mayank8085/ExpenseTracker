@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, FlatList, StyleSheet, ScrollView} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useAuth} from '../App';
@@ -46,9 +46,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 4,
-    marginHorizontal:15,
+    marginHorizontal: 15,
     marginVertical: 14,
-
   },
   itemContainer: {
     padding: 12,
@@ -119,31 +118,53 @@ const dummyExpenses = [
     typeIcon: 'food',
     paymentMode: 'Cash',
   },
-  {
-    id: 5,
-    date: '2023-06-14',
-    amount: 25.0,
-    day: 'Tuesday',
-    type: 'Transportation',
-    typeIcon: 'bus',
-  },
-  {
-    id: 6,
-    date: '2023-06-13',
-    amount: 10.0,
-    day: 'Monday',
-    type: 'Entertainment',
-    typeIcon: 'gamepad',
-  },
+
   // Add more expense items here...
 ];
 const Stats = () => {
-  const {stylesApp} = useAuth();
+  const {stylesApp, axiosInstance} = useAuth();
+  const [expenses, setExpenses] = useState([]);
+  date = new Date();
+  const monthName = date.toLocaleString('default', {month: 'long'});
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const {data} = await axiosInstance.post(
+          '/expense/getAllExpensesOfCurrentMonth',
+          {
+            month: new Date().getMonth() + 1,
+            year: new Date().getFullYear(),
+          },
+        );
+        console.log(data.expenses);
+        //  id date day amount type typeIcon paymentMode
+        const weekday = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+        data.expenses.map(expense => {
+          expense.id = expense._id;
+          expense.amount = expense.amount;
+          expense.date = expense.date.split('T')[0];
+          expense.day = weekday[new Date(expense.date).getDay()];
+          expense.type = expense.category;
+          expense.typeIcon =
+            expense.category == 'Food'
+              ? 'food'
+              : expense.category == 'Travel'
+              ? 'bus'
+              : expense.category == 'Shopping'
+              ? 'bag-personal'
+              : 'gamepad';
+          expense.paymentMode = expense.paymentType.toUpperCase();
+        });
+        setExpenses(data.expenses);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchData();
+  }, []);
+
   return (
-    <ScrollView style={[stylesApp.App]}
-    nestedScrollEnabled={true}
-    
-    >
+    <ScrollView style={[stylesApp.App]} nestedScrollEnabled={true}>
       <View style={[stylesApp.App]}>
         <Text
           style={[
@@ -154,7 +175,7 @@ const Stats = () => {
               marginLeft: 20,
               paddingTop: 5,
               //textAlign: 'center',
-             // marginBottom: 30,
+              // marginBottom: 30,
               marginTop: 10,
             },
           ]}>
@@ -164,26 +185,32 @@ const Stats = () => {
           style={[
             stylesApp.PrimaryColor,
             {
+              fontSize: 20,
+              paddingTop: 10,
+              fontWeight: 'bold',
+              paddingLeft: 20,
+              fontStyle: 'italic',
+            },
+          ]}>
+          Info for {monthName} Month
+        </Text>
+        {expenses && expenses.length > 0 ? (
+          <ExpenseList expenses={expenses} />
+        ) : (
+          <Text
+            style={[
+              stylesApp.PrimaryColor,
+              {
                 fontSize: 20,
-                paddingTop: 10,
                 fontWeight: 'bold',
                 paddingLeft: 20,
                 fontStyle: 'italic',
+                paddingTop: 10,
               },
-          ]}>
-          Info for April Month
-        </Text>
-        {
-            dummyExpenses && dummyExpenses.length > 0 ? (
-               
-                    <ExpenseList expenses={dummyExpenses} />
-                    
-            ) : (
-                <Text style={[stylesApp.PrimaryColor, {fontSize: 20, fontWeight: 'bold', paddingLeft: 20, fontStyle: 'italic', paddingTop: 10}]}>No expenses found</Text>
-            )
-
-        }
-        
+            ]}>
+            No expenses found
+          </Text>
+        )}
       </View>
     </ScrollView>
   );

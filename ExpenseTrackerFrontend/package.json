@@ -21,6 +21,7 @@
     "react-native": "0.71.10",
     "react-native-asset": "^2.1.1",
     "react-native-charts-wrapper": "^0.5.11",
+    "react-native-dotenv": "^3.4.9",
     "react-native-keychain": "^8.1.1",
     "react-native-safe-area-context": "^4.5.3",
     "react-native-screens": "^3.20.0",
