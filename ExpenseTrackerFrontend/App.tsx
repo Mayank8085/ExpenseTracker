@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useCallback} from 'react';
+import React, {useContext, useEffect, useCallback,useState} from 'react';
 import {View, StatusBar, StyleSheet, Text} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -14,13 +14,14 @@ import * as Keychain from 'react-native-keychain';
 import axios from 'axios';
 
 //env import
-import {BACKEND_URI, GOOGLE_CLIENT_ID} from '@env';
+//import {BACKEND_URI, GOOGLE_CLIENT_ID} from '@env';
 //COMPONENT IMPORTS
 import Home from './components/Home';
 import Profile from './components/Profile';
 import Stats from './components/Stats';
 import AddExpense from './components/AddExpense';
 import GoogleWithSignIn from './components/GoogleWithSignIn';
+//import { getCurrentMonthEarning, getCurrentMonthSpend, getTotalEarning, getTotalSpend } from './api';
 
 //CONTEXT IMPORTS
 const AuthContext = React.createContext({});
@@ -33,19 +34,26 @@ const Stack = createNativeStackNavigator();
 
 const App = () => {
   const [isSignedIn, setIsSignedIn] = React.useState(false);
-  const [user, setUser] = React.useState({});
-  const [axiosInst, setAxiosInst] = React.useState({});
+  const [user, setUser] = useState({});
+  const [axiosInst, setAxiosInst] = useState({});
+  const [currentMonthEarnings, setCurrentMonthEarnings] = useState(0);
+  const [currentMonthExpenses, setCurrentMonthExpenses] = useState(0);
+  const [currentMonthSavings, setCurrentMonthSavings] = useState(0);
+  const [totalSpend, setTotalSpend] = useState(0);
+  const [totalSavings, setTotalSavings] = useState(0);
+  const [totalEarning, setTotalEarning] = useState(0);
+  const [token, setToken] = useState('');
+
   //axios instance
-  
-  const url = 'https://expensetrackerr-is5m.onrender.com';
-  //'http://192.168.1.14:5000';
+  const url ='http://192.168.1.34:5000'; //'https://expensetrackerr-is5m.onrender.com';
   let axiosInstance = axios.create({
     timeout: 30000,
     baseURL: url,
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/json'
     },
   });
+
 
   console.log('axiosInstance', axiosInst);
 
@@ -76,6 +84,84 @@ const App = () => {
     }
   };
 
+  
+const date = new Date();
+const month = date.getMonth() + 1;
+const year = date.getFullYear();
+
+//function to get total spend
+
+const getTotalSpend = async () => {
+  try {
+    const res = await axiosInstance.get('/expense/getSumOfAllExpenses/');
+    return res.data.sum;
+    
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+//get total earning
+const getTotalEarning = async () => {
+  try {
+    const res = await axiosInstance.get('/user/sumOfAllMonthEarning/');
+    return res.data;
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+//get totol saving using above two functions
+const getTotalSaving = async () => {
+  try {
+    const totalSpend = await getTotalSpend();
+    const totalEarning = await getTotalEarning();
+    return totalEarning - totalSpend;
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+//get current month earning
+const getCurrentMonthEarning = async () => {
+  try {
+    const {data} = await axiosInstance.post('/user/getCurrentMonthEarning', {
+      month: month,
+      year: year,
+    });
+    return data?.earning;
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+//get current month spend
+const getCurrentMonthSpend = async () => {
+  try {
+    const {data} = await axiosInstance.post(
+      '/expense/getSumOfAllExpensesOfCurrentMonth',
+      {
+        month: month,
+        year: year,
+      },
+    );
+    return data?.sum;
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+//get current month saving
+const getCurrentMonthSaving = async () => {
+  try {
+    const currentMonthEarning = await getCurrentMonthEarning();
+    const currentMonthSpend = await getCurrentMonthSpend();
+    return currentMonthEarning - currentMonthSpend;
+  } catch (err) {
+    console.log(err);
+  }
+};
+
   useEffect(() => {
     async function init() {
       try {
@@ -88,15 +174,27 @@ const App = () => {
         if (credentials) {
           const userData = JSON.parse(credentials.password);
           setUser(userData.user);
-          console.log('userData', userData);
+          //console.log('userData', userData);
           axiosInstance.defaults.headers[
             'Authorization'
           ] = `Bearer ${userData.token}`;
-
           setIsSignedIn(true);
+
+          // const totalSpends = await getTotalSpend();
+          // setTotalSpend(totalSpends);
+          // const totalEarnings =await getTotalEarning();
+          // setTotalEarning(totalEarnings);
+          // setTotalSavings(totalEarning-totalSpends);
+
+          // const currentMonthSpend = await getCurrentMonthSpend();
+          // setCurrentMonthExpenses(currentMonthSpend);
+          // const currentMonthEarnings = await getCurrentMonthEarning();
+          // setCurrentMonthEarnings(currentMonthEarnings);
+          // setCurrentMonthSavings(currentMonthEarnings-currentMonthSpend);
         } else {
           setIsSignedIn(false);
         }
+        
         setAxiosInst({axiosInstance});
       } catch (error) {
         console.log(error);
@@ -118,6 +216,27 @@ const App = () => {
           axiosInstance: axiosInst.axiosInstance,
           setAxiosInstance: setAxiosInst,
           SignOut: SignOut,
+          currentMonthEarnings: currentMonthEarnings,
+          setCurrentMonthEarnings: setCurrentMonthEarnings,
+          currentMonthExpenses: currentMonthExpenses,
+          setCurrentMonthExpenses: setCurrentMonthExpenses,
+          currentMonthSavings: currentMonthSavings,
+          setCurrentMonthSavings: setCurrentMonthSavings,
+          totalSpend: totalSpend,
+          setTotalSpend: setTotalSpend,
+          totalSavings: totalSavings,
+          setTotalSavings: setTotalSavings,
+          totalEarning: totalEarning,
+          setTotalEarning: setTotalEarning,
+
+          getTotalSpend: getTotalSpend,
+          getTotalEarning: getTotalEarning,
+          getTotalSaving: getTotalSaving,
+          getCurrentMonthEarning: getCurrentMonthEarning,
+          getCurrentMonthSpend: getCurrentMonthSpend,
+          getCurrentMonthSaving: getCurrentMonthSaving,
+
+          
         }}>
         <NavigationContainer>
           {!isSignedIn && (

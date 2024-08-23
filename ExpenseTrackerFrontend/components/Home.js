@@ -15,24 +15,64 @@ import * as Keychain from 'react-native-keychain';
 import {useAuth} from '../App';
 import Cards from './Cards';
 import Charts from './Charts';
-
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 const Home = ({navigation}) => {
-  const {stylesApp, user, axiosInstance, setAxiosInstance} = useAuth();
+  const {
+    stylesApp,
+    user,
+    axiosInstance,
+    setAxiosInstance,
+    currentMonthEarnings,
+    currentMonthSavings,
+    currentMonthExpenses,
+    setCurrentMonthEarnings,
+    setCurrentMonthSavings,
+    setCurrentMonthExpenses,
+    totalEarning,
+    setTotalEarning,
+    totalSavings,
+    setTotalSavings,
+    totalSpend,
+    setTotalSpend,
+
+    getTotalSpend,
+    getTotalEarning,
+    getCurrentMonthSpend,
+    getCurrentMonthEarning,
+
+  } = useAuth();
   const windowHeight = Dimensions.get('window').height;
   const [isAddExpenseModalVisible, setAddExpenseModalVisible] = useState(false);
   const [expenseAmount, setExpenseAmount] = useState(0);
-  const [currentMonthEarnings, setCurrentMonthEarnings] = useState(0);
-  const [currentMonthExpenses, setCurrentMonthExpenses] = useState(0);
-  const [currentMonthSavings, setCurrentMonthSavings] = useState(0);
   const date = new Date();
   const month = date.getMonth() + 1;
   const year = date.getFullYear();
   const monthName = date.toLocaleString('default', {month: 'long'});
-  const handleAddExpense = () => {
-    // Logic for adding expenses
-    console.log('Add Expense button clicked');
-    setAddExpenseModalVisible(true);
-  };
+
+  useEffect(() => {
+    //setstates
+    const fetchData = async () => {
+      try {
+        const totalSpends = await getTotalSpend();
+        console.log('totalSpends', totalSpends);
+        
+        setTotalSpend(totalSpends);
+        const totalEarnings = await getTotalEarning();
+        setTotalEarning(totalEarnings);
+        setTotalSavings(totalEarnings - totalSpends);
+
+        const currentMonthSpends = await getCurrentMonthSpend();
+        setCurrentMonthExpenses(currentMonthSpends);
+        const currentMonthEarning = await getCurrentMonthEarning();
+        setCurrentMonthEarnings(currentMonthEarning);
+        setCurrentMonthSavings(currentMonthEarning - currentMonthSpends);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchData();
+  }, []);
+
   const handleSaveExpense = async () => {
     // Logic for saving expense amount
     console.log('Save Expense button clicked');
@@ -49,42 +89,17 @@ const Home = ({navigation}) => {
       console.log('Expense amount:', expenseAmount);
       setCurrentMonthEarnings(data.month.earning);
       setCurrentMonthSavings(data.month.earning - currentMonthExpenses);
+
+      const totalEarnings = await getTotalEarning();
+
+      setTotalEarning(totalEarnings);
+      setTotalSavings(totalEarnings - totalSpend);
+
       setAddExpenseModalVisible(false);
     } catch (error) {
       console.log(error);
     }
   };
-
-  useEffect(() => {
-    //call api
-    const fetchData = async () => {
-      console.log('fetching data' + month + year);
-      try {
-        let {data} = await axiosInstance.post('/user/getCurrentMonthEarning', {
-          month: month,
-          year: year,
-        });
-        console.log('data', data);
-        setCurrentMonthEarnings(data.earning);
-
-        //call api
-        const response1 = await axiosInstance.post(
-          '/expense/getSumOfAllExpensesOfCurrentMonth',
-          {
-            month: month,
-            year: year,
-          },
-        );
-
-        console.log('data1', response1.data);
-        setCurrentMonthExpenses(response1.data.sum);
-        setCurrentMonthSavings(data.earning - response1.data.sum);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchData();
-  }, []);
 
   return (
     <ScrollView style={[{height: windowHeight}, stylesApp.App]}>
@@ -118,82 +133,43 @@ const Home = ({navigation}) => {
             Info for {monthName} Month
           </Text>
         </View>
-
-        {/* cards to shows the balance saving and expenses in row which scroll horizontanlly */}
-        <View>
-          <ScrollView horizontal={true}>
-            <View style={[styles.containerRow]}>
-              <Cards amount={currentMonthEarnings} type={'Earnings'} />
-              <Cards type={'Expenses'} amount={currentMonthExpenses} />
-              <Cards type={'Saving'} amount={currentMonthSavings} />
-            </View>
-          </ScrollView>
-        </View>
-
-        {/* charts */}
-        <View
-          style={[
-            styles.containerRow,
-            {
-              height: 300,
-              //alignContent: 'center',
-              //justifyContent: 'center',
-            },
-          ]}></View>
-        <TouchableOpacity style={styles.addButton} onPress={handleAddExpense}>
-          <Text style={styles.ButtonText}>Add/Update Earning</Text>
-        </TouchableOpacity>
       </View>
-      {/* Modal for adding expenses */}
+      {/* cards to shows the balance saving and expenses in row which scroll horizontanlly */}
+      <View>
+        <ScrollView horizontal={true}>
+          <View style={[styles.containerRow]}>
+            <Cards amount={currentMonthEarnings} type={'Earnings'} />
+            <Cards type={'Expenses'} amount={currentMonthExpenses} />
+            <Cards type={'Saving'} amount={currentMonthSavings} />
+          </View>
+        </ScrollView>
+      </View>
+      <View style={styles.detailsContainer}>
+        <View style={styles.detailItem}>
+          <Icon name="currency-usd" size={34} color="#5c6bc0" />
+          <View>
+            <Text style={styles.detailText}>Total Spend: ₹ {totalSpend}</Text>
+          </View>
+        </View>
 
-      <Modal
-        visible={isAddExpenseModalVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setAddExpenseModalVisible(false)}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalHeading}>Add Earnings</Text>
-            <TextInput
-              style={styles.expenseInput}
-              placeholder="Enter amount"
-              value={expenseAmount}
-              onChangeText={setExpenseAmount}
-              keyboardType="numeric"
-              type="number"
-            />
-            <TouchableOpacity
-              style={styles.saveExpenseButton}
-              onPress={handleSaveExpense}>
-              <Text style={styles.saveExpenseButtonText}>Add/Update</Text>
-            </TouchableOpacity>
+        <View style={styles.detailItem}>
+          <Icon name="piggy-bank" size={34} color="#66bb6a" />
+          <View>
+            <Text style={styles.detailText}>
+              Total Savings:₹ {totalSavings}
+            </Text>
           </View>
         </View>
-      </Modal>
-      <Modal
-        visible={isAddExpenseModalVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setAddExpenseModalVisible(false)}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalHeading}>Update Earning</Text>
-            <TextInput
-              style={styles.expenseInput}
-              placeholder="Enter amount"
-              value={expenseAmount}
-              onChangeText={setExpenseAmount}
-              keyboardType="numeric"
-              type="number"
-            />
-            <TouchableOpacity
-              style={styles.saveExpenseButton}
-              onPress={handleSaveExpense}>
-              <Text style={styles.saveExpenseButtonText}>Save</Text>
-            </TouchableOpacity>
+
+        <View style={styles.detailItem}>
+          <Icon name="credit-card" size={34} color="#ff7043" />
+          <View>
+            <Text style={styles.detailText}>
+              Total Earning: ₹ {totalEarning}
+            </Text>
           </View>
         </View>
-      </Modal>
+      </View>
     </ScrollView>
   );
 };
@@ -268,6 +244,24 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  detailsContainer: {
+    width: '100%',
+    marginBottom: 28,
+    color: '#fff',
+    paddingLeft: 8,
+  },
+  detailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 14,
+    color: '#fff',
+  },
+  detailText: {
+    fontSize: 18,
+    marginLeft: 8,
+    fontWeight: 'bold',
+    color: '#fff',
   },
 });
 

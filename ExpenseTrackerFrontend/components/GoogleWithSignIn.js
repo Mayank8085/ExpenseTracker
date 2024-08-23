@@ -4,7 +4,8 @@ import { GoogleSigninButton } from '@react-native-google-signin/google-signin';
 import { useAuth } from '../App';
 import * as Keychain from 'react-native-keychain';
 
-const GoogleWithSignIn = () => {
+const GoogleWithSignIn = (
+) => {
     const {
         SignIn,
         axiosInstance,
@@ -13,6 +14,13 @@ const GoogleWithSignIn = () => {
         setIsSignedIn,
         user,
         setUser,
+        setTotalSpend,
+        setTotalEarning,
+        setTotalSavings,
+        setCurrentMonthExpenses,
+        setCurrentMonthEarnings,
+        setCurrentMonthSavings,
+
     }=useAuth();
     const signin= async () => {
         try{
@@ -31,13 +39,12 @@ const GoogleWithSignIn = () => {
         });
         console.log("data");
         console.log(data);
+        console.log("Mayank");
         
         //set axios instance
-    axiosInstance.defaults.headers['Authorization'] = `Bearer ${data.token}`;
-      
-
-       // console.log(instance)
-
+        axiosInstance.defaults.headers['Authorization'] = `Bearer ${data.token}`;
+       
+        // console.log(instance)
         setAxiosInstance({axiosInstance})
 
         //save user data to keychain
@@ -48,6 +55,19 @@ const GoogleWithSignIn = () => {
 
         //set user
         setUser(data.user);
+
+        //setstates
+        // const totalSpends = await getTotalSpend();
+        // setTotalSpend(totalSpends);
+        // const totalEarnings =await getTotalEarning();
+        // setTotalEarning(totalEarnings);
+        // setTotalSavings(totalEarnings-totalSpends);
+
+        // const currentMonthSpends = await getCurrentMonthSpend();
+        // setCurrentMonthExpenses(currentMonthSpends);
+        // const currentMonthEarning = await getCurrentMonthEarning();
+        // setCurrentMonthEarnings(currentMonthEarning);
+        // setCurrentMonthSavings(currentMonthEarning-currentMonthSpends);
 
         }catch(error){
             console.log(error);

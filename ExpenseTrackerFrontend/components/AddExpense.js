@@ -12,7 +12,24 @@ import {Picker} from '@react-native-picker/picker';
 import {useAuth} from '../App';
 
 const AddExpenseComponent = () => {
-  const {stylesApp, axiosInstance} = useAuth();
+  const {
+    stylesApp,
+    axiosInstance,
+    currentMonthExpenses,
+    setCurrentMonthExpenses,
+    currentMonthSavings,
+    setCurrentMonthSavings,
+    totalSavings,
+    setTotalSavings,
+    totalSpend,
+    setTotalSpend,
+
+    getTotalSpend,
+    
+
+
+
+  } = useAuth();
   const [date, setDate] = React.useState(new Date());
   const [amount, setAmount] = React.useState('');
   const [type, setType] = React.useState('');
@@ -22,35 +39,39 @@ const AddExpenseComponent = () => {
   const [showDatePicker, setShowDatePicker] = React.useState(true);
   //console.log(" qqq" + " " + date);
 
-  
-
   const handleAddExpense = async () => {
-   
-
     // Pass the expense object to the onAddExpense callback
     //console.log("expense" + " " + expense.date, expense.amount, expense.type, expense.description, expense.paymentMode, expense.time);
 
     //call api
-   
-        const {data} = await axiosInstance.post('/expense/addorUpdateExpense', 
-       {
-        date:date,
-        amount:amount,
-        category:type,
-        description:description,
-        paymentType:paymentMode
-       }
-  
-        );
 
-        console.log(data);  
-     
-    // Clear the input fields
+    const {data} = await axiosInstance.post('/expense/addorUpdateExpense', {
+      date: date,
+      amount: amount,
+      category: type,
+      description: description,
+      paymentType: paymentMode,
+    });
+
+    console.log(data);
+
+    //set the state
+    const currentMonthExpense = await getCurrentMonthSpend();
+    setCurrentMonthExpenses(currentMonthExpense);
+    const currentMonthSaving = totalSpend - currentMonthExpense;
+    setCurrentMonthSavings(currentMonthSaving);
+
+    //update total savings
+    const totalExpense =await getTotalSpend();
+    setTotalSpend(totalExpense);
+    const totalSaving = totalEarning - totalExpense;
+    setTotalSavings(totalSaving);
+
+    // Clear the input fields`
     setAmount('');
     setType('');
     setDescription('');
     setPaymentMode('');
- 
   };
 
   const handleDateChange = (event, selectedDate) => {

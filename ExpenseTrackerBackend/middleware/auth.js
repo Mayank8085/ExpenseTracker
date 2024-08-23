@@ -2,6 +2,10 @@ const jwt = require('jsonwebtoken');
 
 //middleware to check if user is logged in
 exports.requireLogin = async (req, res, next) => {
+    if(!req.header("Authorization")){
+        return res.status(400).json({ error: 'Authorization required' });
+    }
+    
     const token = req.header("Authorization").replace("Bearer ", "" );
 
     if(token){

@@ -7,37 +7,31 @@ import {
   Dimensions,
   TouchableOpacity,
   ScrollView,
+  TextInput, 
+  Button
 } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+
 import {useAuth} from '../App';
 
 const ProfileComponent = () => {
   // image from net for testing
-  const {SignOut, user, axiosInstance} = useAuth();
-  const [totalSpend, setTotalSpend] = useState(0);
-  const [totalSavings, setTotalSavings] = useState(0);
-  const [totalEarning, setTotalEarning] = useState(0);
-  
-  //function to get total spend
-  const getTotalSpend = async () => {
-    try {
-      const res = await axiosInstance.get('/expense/getSumOfAllExpenses/');
-      return res.data;
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  //get total earning
-  const getTotalEarning = async () => {
-    try {
-      const res = await axiosInstance.get('/user/sumOfAllMonthEarning/');
-      return res.data;
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
+  const {
+    SignOut,
+    user,
+    axiosInstance,
+    totalSpend,
+    totalEarning,
+    totalSavings,
+    setTotalEarning,
+    setTotalSavings,
+    setTotalSpend,
+    currentMonthExpenses,
+    setCurrentMonthExpenses,
+    currentMonthSavings,
+    setCurrentMonthSavings,
+    currentMonthEarnings,
+    setCurrentMonthEarnings
+  } = useAuth();
 
 
   const image = {uri: user.photo};
@@ -47,24 +41,27 @@ const ProfileComponent = () => {
     console.log('Logout button clicked');
   };
 
+  const handleSubmit = async () => {
+    const {data} = await axiosInstance.post('/user/addorUpdateUserMonthbyEarning', {
+      month: month,
+      earning: earning,
+      note: note,
+      year: year,
+    });
+    console.log(data);
+    //set the state
+    setTotalEarning(totalEarning + earning);
+    setCurrentMonthEarnings(currentMonthEarnings + earning);
+    setCurrentMonthSavings(currentMonthSavings + earning);
+    setTotalSavings(totalSavings + earning);
+  };
+  
   console.log(user);
 
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      try {
-        const totalSpend = await getTotalSpend();
-        console.log(totalSpend.sum);
-        setTotalSpend(totalSpend.sum);
-        const totalEarning = await getTotalEarning();
-        console.log(totalEarning);
-        setTotalEarning(totalEarning);
-        setTotalSavings(totalEarning - totalSpend.sum);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    fetchUserInfo();
-  }, []);
+  const [year, setYear] = useState(new Date().getFullYear());
+  const [month, setMonth] = useState(new Date().getMonth() + 1);
+  const [earning, setEarning] = useState(0);
+  const [note, setNote] = useState('');
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -77,30 +74,49 @@ const ProfileComponent = () => {
 
       <Text style={styles.name}>{user.name}</Text>
       <Text style={styles.email}>{user.email}</Text>
+      
+      <View contentContainerStyle={styles.inputContainer}
+      style= {{backgroundColor: '#191A19', width: '100%', padding: 13, borderRadius: 10, marginTop: 15, paddingBottom :18, marginBottom:15,  borderColor: '#fff', borderWidth: 2, marginHorizontal:15
+      }}
+      >
+      <Text style= {{
+        fontSize: 18,
+        color: '#fff',
+        marginBottom: 15,
+        fontWeight: 'bold',
+        
+      }} 
+      >Update Current Month Earning Details</Text>
+      <Text style={styles.label}>Month:</Text>
+      <TextInput
+        style={styles.input}
+        keyboardType='numeric'
+        value={month}
+        onChangeText={setMonth}
+        placeholder="Enter month"
+        placeholderTextColor={'#E6E7EE'}
+      />
 
-      <View style={styles.detailsContainer}>
-        <View style={styles.detailItem}>
-          <Icon name="currency-usd" size={34} color="#5c6bc0" />
-          <View>
-            <Text style={styles.detailText}>Total Spend: ₹ {totalSpend}</Text>
-          </View>
-        </View>
+      <Text style={styles.label}>Earning:</Text>
+      <TextInput
+        style={styles.input}
+        keyboardType='numeric'
+        value={earning}
+        onChangeText={setEarning}
+        placeholder="Enter earning"
+        placeholderTextColor={'#E6E7EE'}
+      />
 
-        <View style={styles.detailItem}>
-          <Icon name="piggy-bank" size={34} color="#66bb6a" />
-          <View>
-            <Text style={styles.detailText}>Total Savings:₹ {totalSavings}</Text>
-          </View>
-        </View>
-
-        <View style={styles.detailItem}>
-          <Icon name="credit-card" size={34} color="#ff7043" />
-          <View>
-            <Text style={styles.detailText}>Total Earning: ₹ {totalEarning}</Text>
-          </View>
-        </View>
-      </View>
-
+      <Text style={styles.label}>Details:</Text>
+      <TextInput
+        style={styles.input}
+        value={note}
+        onChangeText={setNote}
+        placeholder="Enter details"
+        placeholderTextColor={'#E6E7EE'}
+      />
+      <Button title="Submit"  onPress={handleSubmit} />
+    </View>
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.ButtonText}>Logout</Text>
       </TouchableOpacity>
@@ -125,8 +141,8 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   profileImage: {
-    width: 150,
-    height: 150,
+    width: 115,
+    height: 115,
     borderRadius: 75,
     // marginBottom: 10,
     borderColor: '#fff',
@@ -140,27 +156,10 @@ const styles = StyleSheet.create({
   },
   email: {
     fontSize: 20,
-    marginBottom: 24,
+    marginBottom: 15,
     color: '#fff',
   },
-  detailsContainer: {
-    width: '100%',
-    marginBottom: 28,
-    color: '#fff',
-    paddingLeft: 8,
-  },
-  detailItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 14,
-    color: '#fff',
-  },
-  detailText: {
-    fontSize: 18,
-    marginLeft: 8,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
+  
   logoutButton: {
     backgroundColor: '#e91e63',
     paddingVertical: 12,
@@ -174,6 +173,27 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
+
+  inputContainer: {
+    flexGrow: 1,
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 5,
+    color: '#fff',
+  },
+  input: {
+    height: 40,
+    borderColor: '#fff',
+    borderWidth: 2,
+    marginBottom: 15,
+    paddingHorizontal: 10,
+    fontSize: 15,
+    color: '#fff',
+  },
 });
 
 export default ProfileComponent;
+
+
+ 

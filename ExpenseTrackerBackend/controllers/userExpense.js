@@ -4,7 +4,7 @@ const User = require("../models/user");
 
 //add or update user month by earing data
 exports.addOrUpdateUserMonthByEarning = async (req, res) => {
-    const { month, year, earning } = req.body;
+    const { month, year, earning,note } = req.body;
     console.log(req.body);
     console.log(month, year, earning)
     try{
@@ -21,9 +21,12 @@ exports.addOrUpdateUserMonthByEarning = async (req, res) => {
             if(monthExists ){
                 //update
                 console.log('update');
+                //add the req earning in the existing earning
+                const newEarning = monthExists.earning + earning; 
+                const newNote = monthExists.note + note;
                 const user = await User.findOneAndUpdate(
                     { _id: req.id, "monthByEarning.month": month, "monthByEarning.year": year },
-                    { $set: { "monthByEarning.$.earning": earning } },
+                    { $set: { "monthByEarning.$.earning": newEarning , "monthByEarning.$.note": newNote } },
                     { new: true }
                 ).exec();
                 //send only updated month data not all month data
@@ -41,7 +44,7 @@ exports.addOrUpdateUserMonthByEarning = async (req, res) => {
                 console.log('add');
               const user = await User.findByIdAndUpdate(
                     { _id: req.id },
-                    { $push: { monthByEarning: { month: month, year: year, earning: earning } } },
+                    { $push: { monthByEarning: { month: month, year: year, earning: earning, note : note } } },
                     { new: true }
                 ).exec()          
                 //send only updated month data not all month data

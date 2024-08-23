@@ -35,6 +35,10 @@ const userSchema = new mongoose.Schema({
             type: Number,
             //required: [true, 'Earning is required']
         },
+        note: {
+            type: String,
+            //required: [true, 'Type is required']
+        }
     }],
 
 }, {
